@@ -1,0 +1,8 @@
+input_marker,normalized,gene_symbol,matched_alias,source,is_found
+ki-67,ki67,MKI67,KI--67,seed,True
+Ki67,ki67,MKI67,KI--67,seed,True
+SMA,sma,ACTA2,SMA,seed,True
+CD57,cd57,B3GAT1,CD57,seed,True
+a-sma,asma,ACTA2,A-SMA,seed,True
+ep-cam,epcam,EPCAM,ep-cam,custom:demo,True
+unknown_marker,unknownmarker,,,,False

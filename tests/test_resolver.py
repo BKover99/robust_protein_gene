@@ -1,4 +1,4 @@
-from robust_protein_gene import GeneResolver
+from rpg_conv import GeneResolver
 
 
 def _resolver(tmp_path):
