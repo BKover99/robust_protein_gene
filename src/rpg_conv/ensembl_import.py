@@ -33,7 +33,7 @@ def bootstrap_from_ensembl(conn: sqlite3.Connection, species: str = "human") -> 
     if dataset_name is None:
         raise ValueError("species must be either 'human' or 'mouse'")
 
-    dataset = Dataset(name=dataset_name, host="http://www.ensembl.org")
+    dataset = Dataset(name=dataset_name, host="https://www.ensembl.org")
     df = dataset.query(attributes=["external_gene_name", "external_synonym"])
 
     n = 0

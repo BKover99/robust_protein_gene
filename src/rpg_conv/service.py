@@ -3,9 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 import sqlite3
+import re
 
-from rpg_conv.database import connect, initialize_database, seed_core_data
+from rpg_conv.database import connect, initialize_database, load_packaged_reference
 from rpg_conv.normalize import normalize_marker
+
+_GENE_LIKE_SYMBOL = re.compile(r"^[A-Za-z0-9]{3,}$")
 
 
 @dataclass(frozen=True)
@@ -22,7 +25,7 @@ class GeneResolver:
         self._conn = connect(Path(db_path) if db_path else None)
         initialize_database(self._conn)
         if auto_seed:
-            seed_core_data(self._conn)
+            load_packaged_reference(self._conn)
 
     def close(self) -> None:
         self._conn.close()
@@ -49,9 +52,10 @@ class GeneResolver:
             WHERE alias_norm = ?
             ORDER BY
                 CASE source
-                    WHEN 'seed' THEN 0
+                    WHEN 'ground_truth' THEN 0
                     WHEN 'curated' THEN 1
-                    ELSE 2
+                    WHEN 'seed' THEN 2
+                    ELSE 3
                 END
             LIMIT 1
             """,
@@ -59,6 +63,17 @@ class GeneResolver:
         ).fetchone()
 
         if row is None:
+            # Fallback: if input looks like a canonical symbol (e.g., PDCD1),
+            # return the uppercase symbol even if not explicitly seeded.
+            candidate = marker.strip()
+            if _GENE_LIKE_SYMBOL.match(candidate):
+                return ResolutionResult(
+                    query=marker,
+                    normalized_query=norm,
+                    gene_symbol=candidate.upper(),
+                    matched_alias=None,
+                    source="fallback:symbol",
+                )
             return ResolutionResult(
                 query=marker,
                 normalized_query=norm,

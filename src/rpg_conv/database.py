@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import csv
+from importlib.resources import files
 import sqlite3
 from pathlib import Path
 
 from rpg_conv.normalize import normalize_marker
-from rpg_conv.seed_data import core_seed_rows
 
 
 SCHEMA_SQL = """
@@ -59,7 +60,55 @@ def upsert_alias(
     )
 
 
-def seed_core_data(conn: sqlite3.Connection) -> None:
-    for gene_symbol, alias in core_seed_rows():
-        upsert_alias(conn, gene_symbol=gene_symbol, alias_raw=alias, source="seed")
+def load_packaged_reference(conn: sqlite3.Connection) -> None:
+    existing = conn.execute("SELECT COUNT(*) FROM gene_alias").fetchone()[0]
+    if existing > 0:
+        return
+
+    data_path = files("rpg_conv.data").joinpath("ensembl_reference.csv")
+    with data_path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = [
+            (
+                row["gene_symbol"].upper(),
+                row["alias"],
+                row["alias_norm"] or normalize_marker(row["alias"]),
+                row.get("source", "ensembl:reference"),
+            )
+            for row in reader
+        ]
+
+    conn.executemany(
+        """
+        INSERT INTO gene_alias(gene_symbol, alias_raw, alias_norm, source)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(gene_symbol, alias_norm) DO UPDATE SET
+            alias_raw = excluded.alias_raw,
+            source = excluded.source
+        """,
+        rows,
+    )
+
+    overrides_path = files("rpg_conv.data").joinpath("ground_truth_overrides.csv")
+    with overrides_path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        override_rows = [
+            (
+                row["gene_symbol"].upper(),
+                row["alias"],
+                row["alias_norm"] or normalize_marker(row["alias"]),
+                row.get("source", "ground_truth"),
+            )
+            for row in reader
+        ]
+    conn.executemany(
+        """
+        INSERT INTO gene_alias(gene_symbol, alias_raw, alias_norm, source)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(gene_symbol, alias_norm) DO UPDATE SET
+            alias_raw = excluded.alias_raw,
+            source = excluded.source
+        """,
+        override_rows,
+    )
     conn.commit()

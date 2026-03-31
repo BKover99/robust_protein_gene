@@ -1,6 +1,6 @@
 # rpg_conv
 
-`rpg_conv` resolves protein marker aliases (for example `ki--67`, `SMA`, `CD57`) to canonical gene symbols using a local SQLite database.
+`rpg_conv` resolves protein marker aliases (for example `ki--67`, `SMA`, `CD57`) to canonical gene symbols using a local SQLite database populated from a bundled Ensembl reference table.
 
 ## Install
 
@@ -39,6 +39,8 @@ The SQLite database stores:
 - canonical gene symbols
 - aliases/synonyms
 - normalized alias keys used for robust lookup
+- bundled Ensembl reference rows loaded on first initialization
+- a tiny ground-truth override table for deterministic aliases (`KI67`, `SMA`, `CD57`, `PDCD1`)
 
 ## Optional Ensembl bootstrap
 

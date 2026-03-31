@@ -39,3 +39,12 @@ def test_unknown_marker_returns_none(tmp_path):
         assert resolver.resolve_one("definitely-not-a-real-marker") is None
     finally:
         resolver.close()
+
+
+def test_canonical_symbol_fallback_returns_uppercase_symbol(tmp_path):
+    resolver = _resolver(tmp_path)
+    try:
+        assert resolver.resolve_one("PDCD1") == "PDCD1"
+        assert resolver.resolve_one("pdcd1") == "PDCD1"
+    finally:
+        resolver.close()
