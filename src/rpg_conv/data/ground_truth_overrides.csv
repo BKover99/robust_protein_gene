@@ -1,8 +1,0 @@
-gene_symbol,alias,alias_norm,source
-MKI67,KI67,ki67,ground_truth
-MKI67,KI-67,ki67,ground_truth
-MKI67,KI--67,ki67,ground_truth
-ACTA2,SMA,sma,ground_truth
-ACTA2,A-SMA,asma,ground_truth
-B3GAT1,CD57,cd57,ground_truth
-PDCD1,PDCD1,pdcd1,ground_truth

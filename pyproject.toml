@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rpg_conv"
-version = "0.1.1"
+version = "0.2.0"
 description = "Robust protein marker to gene symbol resolution backed by SQLite."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -12,7 +12,7 @@ authors = [
   { name = "Your Name" }
 ]
 license = "MIT"
-dependencies = []
+dependencies = ["rapidfuzz>=3.0", "pandas>=2.0"]
 
 [project.optional-dependencies]
 dev = ["pytest>=8.0"]
@@ -20,7 +20,6 @@ ensembl = ["pandas>=2.0", "pybiomart>=0.2.0"]
 
 [project.scripts]
 rpg-conv = "rpg_conv.cli:main"
-robust-protein-gene = "robust_protein_gene.cli:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
